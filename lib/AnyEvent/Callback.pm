@@ -1,6 +1,6 @@
 package AnyEvent::Callback;
 
-use 5.014002;
+use 5.010001;
 use strict;
 use warnings;
 
@@ -109,6 +109,15 @@ callback, the module will call error callback upwards of hierarchy. Example:
         });
     }
 
+
+=head1 METHODS
+
+=head2 'CODE' (overloaded fake method)
+
+    $cb->( ... );
+
+You can use the object as usually B<CODEREF>.
+
 =cut
 
 use overload
@@ -131,6 +140,18 @@ use overload
 ;
 
 
+=head2 CB
+
+Creates new callback object that have binding on parent callback.
+
+    my $new_cb = $cb->CB(sub { ... });   # the cb doesn't catch errors
+
+    my $new_cb = CB(sub { ... }, sub { ... }); # the cb catches errors
+
+    my $new_cb = $cb->CB(sub { ... }, sub { ... }); # the same
+
+=cut
+
 sub CB(&;&) {
 
     my $parent;
@@ -142,6 +163,9 @@ sub CB(&;&) {
     croak 'Error callback must be CODEREF or undef'
         unless 'CODE' eq ref $ecb or !defined $ecb;
 
+    # don't translate erorrs upwards if error callback if exists
+    $parent = undef if $ecb;
+
     my $self = bless {
         cb      => $cb,
         ecb     => $ecb,
@@ -152,6 +176,14 @@ sub CB(&;&) {
 
     $self;
 }
+
+
+=head2 error
+
+Calls error callback. If the object has no registered error callbacks,
+parent object's error callback will be called.
+
+=cut
 
 sub error {
     my ($self, @error) = @_;
@@ -182,6 +214,7 @@ sub error {
     $parent->error( @error );
     return;
 }
+
 
 sub DESTROY {
     my ($self) = @_;
