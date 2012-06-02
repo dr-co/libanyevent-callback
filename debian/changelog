@@ -1,5 +1,5 @@
-libanyevent-callback-perl (0.01-1) unstable; urgency=low
+libanyevent-callback-perl (0.02-1) unstable; urgency=low
 
   * Debian first commit.
 
- -- Dmitry E. Oboukhov <unera@debian.org>  Sat, 02 Jun 2012 21:48:30 +0400
+ -- Dmitry E. Oboukhov <unera@debian.org>  Sat, 02 Jun 2012 22:05:53 +0400

@@ -3,4 +3,5 @@ Revision history for Perl extension AnyEvent::Callback.
 0.01  Sat Jun  2 13:55:23 2012
 	- original version; created by h2xs 1.23 with options
 		-X -n AnyEvent::Callback
-
+0.02  Sat Jun  2 22:05:30 MSK 2012
+        - debian package
