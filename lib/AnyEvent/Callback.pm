@@ -72,7 +72,7 @@ If a watcher doesn't call result or error callback, error callback will be
 called automatically.
 
 Also the module checks if a callback was called reentrant. In the case the
-module will complain (using L<Croak/carp>).
+module will complain (using L<Carp/carp>).
 
 If a watcher touches error callback and if superior didn't define error
 callback, the module will call error callback upwards of hierarchy. Example:
