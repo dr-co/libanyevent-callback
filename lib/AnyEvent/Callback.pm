@@ -15,6 +15,8 @@ our $VERSION = '0.01';
 
 =head1 NAME
 
+AnyEvent::Something - callback aggregator for L<AnyEvent> watchers.
+
 =head1 SYNOPSIS
 
     use AnyEvent::Something;
