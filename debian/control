@@ -1,14 +1,14 @@
 Source: libanyevent-callback-perl
 Section: perl
-Homepage: http://search.cpan.org/dist/DR-Tarantool/
+Homepage: http://search.cpan.org/dist/AnyEvent-Callback/
 Maintainer: Dmitry E. Oboukhov <unera@debian.org>
 Build-Depends: debhelper (>= 7), cdbs
 Standards-Version: 3.9.2
 Priority: extra
-VCS-Browser: https://github.com/unera/dbix-dr
+VCS-Browser: https://github.com/unera/libanyevent-callback
 
 Package: libanyevent-callback-perl
-Depends: ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ${perl:Depends}, ${misc:Depends}
 Recommends: libcoro-perl
 Architecture: all
 Suggests: tarantool
