@@ -3,4 +3,5 @@ MANIFEST
 Makefile.PL
 README
 Changes
+t/020-pod.t
 t/010-ae-cb.t
