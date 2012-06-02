@@ -104,8 +104,6 @@ callback, the module will call error callback upwards of hierarchy. Example:
                 $cb->error( 456 );  # on_error will be called
 
             });
-
-
         });
     }
 
@@ -182,6 +180,8 @@ sub CB(&;&) {
 
 Calls error callback. If the object has no registered error callbacks,
 parent object's error callback will be called.
+
+    $cb->error('WTF?');
 
 =cut
 
