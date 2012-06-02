@@ -9,9 +9,7 @@ VCS-Browser: https://github.com/unera/libanyevent-callback
 
 Package: libanyevent-callback-perl
 Depends: ${perl:Depends}, ${misc:Depends}
-Recommends: libcoro-perl
 Architecture: all
-Suggests: tarantool
 Description: callback aggregator for AnyEvent watchers
  The module allows You to create callback's hierarchy. Also the module
  groups error and result callbacks into one object.
