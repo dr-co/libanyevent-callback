@@ -1,5 +1,5 @@
 libanyevent-callback-perl (0.02-1) unstable; urgency=low
 
-  * Debian first commit.
+  * Debian first commit, closes: #675697.
 
  -- Dmitry E. Oboukhov <unera@debian.org>  Sat, 02 Jun 2012 22:05:53 +0400
