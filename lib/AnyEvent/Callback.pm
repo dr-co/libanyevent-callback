@@ -10,16 +10,16 @@ use Carp;
 
 our @EXPORT = qw(CB);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 =head1 NAME
 
-AnyEvent::Something - callback aggregator for L<AnyEvent> watchers.
+AnyEvent::Callback - callback aggregator for L<AnyEvent> watchers.
 
 =head1 SYNOPSIS
 
-    use AnyEvent::Something;
+    use AnyEvent::Callback;
 
 
     # usually watchers are looked as:
