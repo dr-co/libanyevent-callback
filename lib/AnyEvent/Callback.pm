@@ -77,7 +77,7 @@ Also the module checks if a callback was called reentrant. In the case the
 module will complain (using L<Carp/carp>).
 
 If a watcher touches error callback and if superior didn't define error
-callback, the module will call error callback upwards of hierarchy. Example:
+callback, the module will call error callback upwards hierarchy. Example:
 
     AE::something @args, CB \&my_watcher, \&on_error;
 
@@ -90,7 +90,7 @@ callback, the module will call error callback upwards of hierarchy. Example:
 
         ...
 
-        the_other_watcher $cb->CB( sub {    # error callback wasn't defined
+        the_other_watcher $cb->CB( sub { # error callback wasn't defined
             my $cb = pop;
             ...
             yet_another_watcher1 $cb->CB( sub {
@@ -225,5 +225,15 @@ sub DESTROY {
     delete $self->{cb};
     delete $self->{ecb};
 }
+
+
+=head1 COPYRIGHT AND LICENCE
+
+ Copyright (C) 2012 by Dmitry E. Oboukhov
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
 
 1;
