@@ -10,7 +10,7 @@ use Carp;
 
 our @EXPORT = qw(CB CBS);
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 
 =head1 NAME
