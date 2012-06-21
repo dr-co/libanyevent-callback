@@ -8,9 +8,9 @@ require Exporter;
 use base 'Exporter';
 use Carp;
 
-our @EXPORT = qw(CB);
+our @EXPORT = qw(CB CBS);
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 
 =head1 NAME
@@ -63,6 +63,26 @@ Also You can create callback's queue:
         AE::something @args, $cb->CB( sub { ... }, sub { ... } );
     }
 
+
+Callbacks stack
+
+    my $cbs = CBS;
+
+    for (1 .. $n) {
+        AE::something @args, $cbs->cb;
+    }
+
+    $cbs->wait(sub {
+        for (@_) {
+            if ($_->is_error) {     # handle one error
+                my @err = $_->errors; # or:
+                my $errstr = $_->errstr;
+            } else {                # results
+                my @res = $_->results;
+            }
+        }
+
+    });
 
 =head1 DESCRIPTION
 
@@ -177,6 +197,10 @@ sub CB(&;&) {
     $self;
 }
 
+sub CBS {
+    return AnyEvent::Callback::Stack->new;
+}
+
 
 =head2 error
 
@@ -226,6 +250,89 @@ sub DESTROY {
     delete $self->{ecb};
 }
 
+
+package AnyEvent::Callback::Stack;
+use Scalar::Util 'weaken';
+use Carp;
+
+sub new {
+    my ($class) = @_;
+    return bless { stack => [], done => 0 } => ref($class) || $class;
+}
+
+sub cb {
+    my ($self) = @_;
+    my $idx = @{ $self->{stack} };
+    my $cb = AnyEvent::Callback::CB
+        sub {
+            $self->{stack}[$idx] = AnyEvent::Callback::Stack::Result->new(@_);
+            $self->{done}++;
+            $self->_check_if_done;
+        },
+        sub {
+            $self->{stack}[$idx] = AnyEvent::Callback::Stack::Result->err(@_);
+            $self->{done}++;
+            $self->_check_if_done;
+        }
+    ;
+    push @{ $self->{stack} } => $cb;
+    weaken $self->{stack}[$idx];
+    return $self->{stack}[$idx];
+}
+
+
+sub _check_if_done {
+    my ($self) = @_;
+    return unless $self->{waiter};
+    return unless $self->{done} >= @{ $self->{stack} };
+    my $cb = delete $self->{waiter};
+    $cb->(@{ $self->{stack} });
+    $self->{stack} = [];
+    $self->{done} = 0;
+}
+
+sub wait :method {
+    my ($self, $cb) = @_;
+    croak 'Usage: $cbs->wait(sub { ... })' unless 'CODE' eq ref $cb;
+    croak 'You have already initiated wait process' if $self->{waiter};
+    $self->{waiter} = $cb;
+    $self->_check_if_done;
+}
+
+package AnyEvent::Callback::Stack::Result;
+
+sub new {
+    my ($class, @res) = @_;
+    return bless { res => \@res } => ref($class) || $class;
+}
+
+sub err {
+    my ($class, @res) = @_;
+    return bless { err => \@res, res => [] } => ref($class) || $class;
+}
+
+sub is_error {
+    my ($self) = @_;
+    return exists $self->{err};
+}
+
+sub results {
+    my ($self) = @_;
+    return $self->{res} unless wantarray;
+    return @{ $self->{res} };
+}
+
+sub errors {
+    my ($self) = @_;
+    return unless $self->is_error;
+    return $self->{err} unless wantarray;
+    return @{ $self->{err} };
+}
+
+sub errstr {
+    my ($self) = @_;
+    return join ' ' => $self->errors;
+}
 
 =head1 COPYRIGHT AND LICENCE
 

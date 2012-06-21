@@ -1,3 +1,9 @@
+libanyevent-callback-perl (0.04-1) unstable; urgency=low
+
+  * New upstream version: add CBS function.
+
+ -- Dmitry E. Oboukhov <unera@debian.org>  Mon, 18 Jun 2012 23:39:03 +0400
+
 libanyevent-callback-perl (0.03-1) unstable; urgency=low
 
   * typo in perldoc

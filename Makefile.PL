@@ -6,6 +6,9 @@ WriteMakefile(
     NAME            => 'AnyEvent::Callback',
     VERSION_FROM    => 'lib/AnyEvent/Callback.pm',
     PREREQ_PM       => {},
+    BUILD_REQUIRES  => {
+        AnyEvent    => 0,
+    },
     ABSTRACT_FROM   => 'lib/AnyEvent/Callback.pm',
     AUTHOR          => 'Dmitry E. Oboukhov <unera@debian.org>',
     META_MERGE => {
