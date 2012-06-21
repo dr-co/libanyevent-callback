@@ -1,3 +1,9 @@
+libanyevent-callback-perl (0.05-1) unstable; urgency=low
+
+  * Cleans perldoc.
+
+ -- Dmitry E. Oboukhov <unera@debian.org>  Thu, 21 Jun 2012 16:17:48 +0400
+
 libanyevent-callback-perl (0.04-1) unstable; urgency=low
 
   * New upstream version: add CBS function.

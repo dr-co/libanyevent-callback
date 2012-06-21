@@ -50,19 +50,6 @@ Inside Your callback You can:
         $cb->( $value );        # result callback will be called
     }
 
-Also You can create callback's queue:
-
-    sub my_watcher {
-        my $cb = pop;
-
-        # ...
-
-        AE::something @args, $cb->CB( sub { ... } );
-        # or:
-        AE::something @args, $cb->CB( sub { ... } );
-        AE::something @args, $cb->CB( sub { ... }, sub { ... } );
-    }
-
 
 Callbacks stack
 
