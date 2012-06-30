@@ -3,7 +3,7 @@ Section: perl
 Homepage: http://search.cpan.org/dist/AnyEvent-Callback/
 Maintainer: Dmitry E. Oboukhov <unera@debian.org>
 Build-Depends: debhelper (>= 7), cdbs, libanyevent-perl
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 Priority: extra
 VCS-Browser: https://github.com/unera/libanyevent-callback
 
