@@ -12,3 +12,6 @@ Revision history for Perl extension AnyEvent::Callback.
 
 0.05  Thu Jun 21 16:14:43 MSK 2012
         - cbstack
+
+0.06  Sat Jun 30 18:20:38 MSK 2012
+        - anyway callback

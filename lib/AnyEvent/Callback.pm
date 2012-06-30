@@ -10,7 +10,7 @@ use Carp;
 
 our @EXPORT = qw(CB CBS);
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 
 =head1 NAME
@@ -36,6 +36,19 @@ AnyEvent::Callback - callback aggregator for L<AnyEvent> watchers.
     AE::something @args,
         CB sub { ... },     # result
             sub { ... };    # error
+
+    AE::something @args,
+        CB sub { ... },     # result
+            sub { ... },    # error
+            sub { ... };    # anyway callback
+
+Callback hierarchy
+
+    my $cbchild = $cb->CB(sub { ... });
+
+    ...
+
+    $cbchild->error('error'); # will call $cb->error('error');
 
 Inside Your callback You can:
 
@@ -136,8 +149,12 @@ use overload
                 if $self->{called} > 1;
             carp "Calling result callback after error callback"
                 if $self->{ecalled};
-            $self->{cb}->(@_) if $self->{cb};
+            if ($self->{cb}) {
+                $self->{cb}->(@_);
+                $self->{acb}->() if $self->{acb};
+            }
             delete $self->{cb};
+            delete $self->{acb};
             delete $self->{ecb};
             delete $self->{parent};
             return;
@@ -159,16 +176,19 @@ Creates new callback object that have binding on parent callback.
 
 =cut
 
-sub CB(&;&) {
+sub CB(&;&&) {
 
     my $parent;
-    my ($cb, $ecb) = @_;
+    my ($cb, $ecb, $acb) = @_;
 
-    ($parent, $cb, $ecb) = @_ unless 'CODE' eq ref $cb;
+    ($parent, $cb, $ecb, $acb) = @_ unless 'CODE' eq ref $cb;
 
     croak 'Callback must be CODEREF' unless 'CODE' eq ref $cb;
     croak 'Error callback must be CODEREF or undef'
         unless 'CODE' eq ref $ecb or !defined $ecb;
+
+    croak 'Anyway callback must be CODEREF or undef'
+        unless 'CODE' eq ref $acb or !defined $acb;
 
     # don't translate erorrs upwards if error callback if exists
     $parent = undef if $ecb;
@@ -176,6 +196,7 @@ sub CB(&;&) {
     my $self = bless {
         cb      => $cb,
         ecb     => $ecb,
+        acb     => $acb,
         parent  => $parent,
         called  => 0,
         ecalled => 0,
@@ -209,22 +230,26 @@ sub error {
 
     if ($self->{ecb}) {
         $self->{ecb}( @error );
+        $self->{acb}() if $self->{acb};
         delete $self->{ecb};
         delete $self->{cb};
         delete $self->{parent};
+        delete $self->{acb};
         return;
     }
 
+    my $acb = delete $self->{acb};
     delete $self->{ecb};
     delete $self->{cb};
     my $parent = delete $self->{parent};
 
-    unless($parent) {
+    if ($parent) {
+        $parent->error( @error );
+    } else {
         carp "Uncaught error: @error";
-        return;
     }
 
-    $parent->error( @error );
+    $acb->() if $acb;
     return;
 }
 

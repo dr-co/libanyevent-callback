@@ -1,3 +1,9 @@
+libanyevent-callback-perl (0.06-1) unstable; urgency=low
+
+  * Add 'anyway' callback.
+
+ -- Dmitry E. Oboukhov <unera@debian.org>  Sat, 30 Jun 2012 18:01:26 +0400
+
 libanyevent-callback-perl (0.05-1) unstable; urgency=low
 
   * Cleans perldoc.

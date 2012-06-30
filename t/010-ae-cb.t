@@ -6,7 +6,7 @@ use utf8;
 use open qw(:std :utf8);
 use lib qw(lib ../lib);
 
-use Test::More tests    => 36;
+use Test::More tests    => 59;
 use Encode qw(decode encode);
 
 
@@ -21,7 +21,7 @@ BEGIN {
 }
 
 #
-my ($called, $ecalled, $child_called, $child_ecalled, @res, @err) = (0) x 4;
+my ($called, $ecalled, $acb, $child_called, $child_ecalled, @res, @err)= (0)x 5;
 my $cb = CB { $called++ };
 isa_ok $cb => 'AnyEvent::Callback';
 ok eval { $cb->(); 1 }, 'calling callback';
@@ -37,7 +37,7 @@ cmp_ok $called, '~~', 1, 'callback was called once';
 }
 
 #
-($called, $ecalled, $child_called, $child_ecalled, @res, @err) = (0, 0, 0, 0);
+($called, $ecalled, $acb, $child_called, $child_ecalled, @res, @err) = (0) x 5;
 $cb = CB sub { $called++ }, sub { $ecalled++ };
 isa_ok $cb => 'AnyEvent::Callback';
 $cb->error(123);
@@ -52,9 +52,27 @@ cmp_ok $ecalled, '~~', 1, 'error callback was touched';
 }
 cmp_ok $ecalled, '~~', 1, 'error callback was touched once';
 cmp_ok $called, '~~', 0, 'result callback was not touched';
+is $acb, 0, 'anyway callback was not touched';
+
+($called, $ecalled, $acb, $child_called, $child_ecalled, @res, @err) = (0) x 5;
+$cb = CB sub { $called++ }, sub { $ecalled++ }, sub { $acb++ };
+isa_ok $cb => 'AnyEvent::Callback';
+$cb->error(123);
+cmp_ok $ecalled, '~~', 1, 'error callback was touched';
+{
+    my @warns;
+    local $SIG{__WARN__} = sub { push @warns => $_[0] };
+    $cb->(456);
+
+    cmp_ok $#warns, '~~', 0, 'one warning';
+    like $warns[0], qr{result callback after error}, 'warning text';
+}
+cmp_ok $ecalled, '~~', 1, 'error callback was touched once';
+cmp_ok $called, '~~', 0, 'result callback was not touched';
+is $acb, 1, 'anyway callback was touched';
 
 #
-($called, $ecalled, $child_called, $child_ecalled, @res, @err) = (0, 0, 0, 0);
+($called, $ecalled, $acb, $child_called, $child_ecalled, @res, @err) = (0) x 5;
 $cb = CB sub { $called++ }, sub { $ecalled++ };
 isa_ok $cb => 'AnyEvent::Callback';
 $cb->(123);
@@ -70,9 +88,28 @@ cmp_ok $called, '~~', 1, 'result callback was touched';
 }
 cmp_ok $ecalled, '~~', 0, 'error callback was not touched';
 cmp_ok $called, '~~', 1, 'result callback was touched once';
+is $acb, 0, 'anyway callback was not touched';
+
+($called, $ecalled, $acb, $child_called, $child_ecalled, @res, @err) = (0) x 5;
+$cb = CB sub { $called++ }, sub { $ecalled++ }, sub { $acb++ };
+isa_ok $cb => 'AnyEvent::Callback';
+$cb->(123);
+cmp_ok $called, '~~', 1, 'result callback was touched';
+{
+    my @warns;
+    local $SIG{__WARN__} = sub { push @warns => $_[0] };
+    $cb->error(456);
+
+    cmp_ok $#warns, '~~', 1, 'warning twice';
+    like $warns[0], qr{error callback after result}, 'first warning';
+    like $warns[1], qr{Uncaught error}, 'first warning';
+}
+cmp_ok $ecalled, '~~', 0, 'error callback was not touched';
+cmp_ok $called, '~~', 1, 'result callback was touched once';
+is $acb, 1, 'anyway callback touched';
 
 #
-($called, $ecalled, $child_called, $child_ecalled, @res, @err) = (0, 0, 0, 0);
+($called, $ecalled, $acb, $child_called, $child_ecalled, @res, @err) = (0) x 5;
 $cb = CB sub { $called++; @res = @_ }, sub { $ecalled++; @err = @_ };
 my $cb_child = $cb->CB(sub { $child_called++ });
 undef $cb_child;
@@ -82,9 +119,21 @@ cmp_ok $child_called, '~~', 0, "child result callback wasn't touched";
 cmp_ok $child_ecalled, '~~', 0, "child error callback wasn't touched";
 like $err[0], qr{no one touched registered}, 'autotouch error callback';
 
+#
+($called, $ecalled, $acb, $child_called, $child_ecalled, @res, @err) = (0) x 5;
+$cb = CB sub { $called++; @res = @_ }, sub { $ecalled++; @err = @_ };
+$cb_child = $cb->CB(sub { $child_called++ }, undef, sub { $acb++ });
+undef $cb_child;
+is $called, 0, "result callback wasn't touched";
+is $ecalled, 1, "error callback wasn touched once";
+is $child_called, 0, "child result callback wasn't touched";
+is $child_ecalled, 0, "child error callback wasn't touched";
+is $acb, 1, 'anyway callback touched';
+like $err[0], qr{no one touched registered}, 'autotouch error callback';
+
 
 #
-($called, $ecalled, $child_called, $child_ecalled, @res, @err) = (0, 0, 0, 0);
+($called, $ecalled, $acb, $child_called, $child_ecalled, @res, @err) = (0) x 5;
 $cb = CB sub { $called++; @res = @_ }, sub { $ecalled++; @err = @_ };
 $cb_child = $cb->CB(sub { $child_called++ });
 $cb_child->error(12345);
