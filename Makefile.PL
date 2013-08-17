@@ -13,9 +13,10 @@ WriteMakefile(
     AUTHOR          => 'Dmitry E. Oboukhov <unera@debian.org>',
     META_MERGE => {
         resources => {
-            homepage   => 'https://github.com/unera/libanyevent-callback',
+            homepage   => 'https://github.com/dr-co/libanyevent-callback',
+            repository => 'https://github.com/dr-co/libanyevent-callback',
             bugtracker =>
-                'https://github.com/unera/libanyevent-callback/issues',
+                'https://github.com/dr-co/libanyevent-callback/issues',
         }
     },
     LICENSE => 'perl'
